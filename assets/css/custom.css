@@ -1,0 +1,678 @@
+/* Business profile page — Instagram-styled (single CSS source). */
+
+/* ---------- 1) Theme tokens (Instagram palette) ---------- */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #fafafa;
+  --text: #000000;
+  --text-2: #737373;
+  --text-3: #8e8e8e;
+  --border: #dbdbdb;
+  --border-2: #efefef;
+  --blue: #0095f6;
+  --blue-hover: #1877f2;
+  --star: #f5b400;
+  --btn: #efefef;
+  --btn-hover: #dbdbdb;
+  --link: #00376b;
+  --skel: #efefef;
+  --skel-hi: #f7f7f7;
+  --shadow: 0 12px 44px rgba(0, 0, 0, .15);
+  --maxw: 935px;
+}
+/* Koyu palet. data-theme yoksa SISTEM temasini izler; manuel secimde data-theme
+   ("dark"/"light") sistemi override eder (toggle localStorage'da saklar). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #000000; --surface: #000000; --surface-2: #121212;
+    --text: #f5f5f5; --text-2: #a8a8a8; --text-3: #7a7a7a;
+    --border: #262626; --border-2: #1f1f1f;
+    --blue: #0095f6; --blue-hover: #1a8cff; --star: #f5b400;
+    --btn: #262626; --btn-hover: #363636; --link: #e0f1ff;
+    --skel: #1a1a1a; --skel-hi: #262626;
+    --shadow: 0 12px 44px rgba(0, 0, 0, .6);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #000000; --surface: #000000; --surface-2: #121212;
+  --text: #f5f5f5; --text-2: #a8a8a8; --text-3: #7a7a7a;
+  --border: #262626; --border-2: #1f1f1f;
+  --blue: #0095f6; --blue-hover: #1a8cff; --star: #f5b400;
+  --btn: #262626; --btn-hover: #363636; --link: #e0f1ff;
+  --skel: #1a1a1a; --skel-hi: #262626;
+  --shadow: 0 12px 44px rgba(0, 0, 0, .6);
+}
+
+/* ---------- 2) Base & helpers ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+html.locked, body.locked { overflow: hidden; overscroll-behavior: none; }
+/* iOS-guvenli kilit: body'yi mevcut scroll'da dondur (top inline = -scrollY). Mobil Safari'de
+   `overflow:hidden` arka-plan kaydirmayi engellemez; `position:fixed` engeller. */
+body.locked { position: fixed; left: 0; right: 0; width: 100%; }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+
+.icon { display: inline-flex; align-items: center; justify-content: center; }
+.icon svg, .btn svg, .info-icon svg { display: block; }
+.tag { color: var(--link); }
+.empty { padding: 56px 20px; text-align: center; color: var(--text-2); }
+
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* ---------- 3) Header ---------- */
+.container { max-width: var(--maxw); margin: 0 auto; padding: 24px 18px 64px; }
+
+.profile-header {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 3px; padding: 14px 0 4px;
+}
+.logo-ring {
+  display: inline-block; padding: 3px; border-radius: 50%;
+  background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+}
+.logo {
+  display: block; width: 110px; height: 110px; border-radius: 50%; object-fit: cover;
+  border: 3px solid var(--bg); background: var(--skel);
+}
+.logo:not(.loaded) {
+  background: linear-gradient(100deg, var(--skel) 30%, var(--skel-hi) 50%, var(--skel) 70%);
+  background-size: 200% 100%; animation: shimmer 1.2s linear infinite;
+}
+.business-name {
+  margin: 10px 0 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.business-name .verified svg { width: 18px; height: 18px; }
+.category { color: var(--text-2); }
+.bio { margin: 6px 0 0; max-width: 480px; white-space: pre-line; line-height: 1.5; }
+
+/* ---------- 4) Contact ---------- */
+.contact { max-width: 600px; margin: 16px auto 0; display: flex; flex-direction: column; gap: 12px; }
+
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.btn {
+  height: 32px; padding: 0 16px; border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; transition: background .15s;
+}
+.btn svg { width: 16px; height: 16px; }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: var(--blue-hover); }
+.btn-secondary { background: var(--btn); color: var(--text); }
+.btn-secondary:hover { background: var(--btn-hover); }
+
+/* ---------- 5) Tabs (catalog / posts) — Instagram profile-tab style:
+   full-width icon-only segments, active = dark icon + 1px top border ---------- */
+.tabs {
+  display: flex; margin-top: 16px; border-top: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50; background: var(--bg);
+}
+.tabs[hidden] { display: none; }
+.tab {
+  flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer; color: var(--text-3);
+  height: 44px; margin-top: -1px; border-top: 1px solid transparent;
+}
+.tab .icon svg { width: 22px; height: 22px; }
+.tab.active { color: var(--text); box-shadow: inset 0 2px 0 var(--text); }
+.tabs.single .tab { color: var(--text); box-shadow: inset 0 2px 0 var(--text); cursor: default; }
+
+/* ---------- 5b) Catalog: category chips ---------- */
+.catalog[hidden] { display: none; }
+.chips {
+  display: flex; gap: 8px; overflow-x: auto; padding: 14px 0 4px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto; height: 32px; padding: 0 15px; border-radius: 16px;
+  border: none; background: var(--btn); color: var(--text);
+  font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.chip:hover { background: var(--btn-hover); }
+.chip.active { background: var(--text); color: var(--bg); }
+
+/* ---------- 5c) Catalog: product grid ---------- */
+.prod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+.prod-card { text-align: left; background: none; border: none; padding: 0; cursor: pointer; color: var(--text); }
+.prod-media { position: relative; aspect-ratio: 4 / 5; border-radius: 8px; overflow: hidden; background: var(--skel); }
+.prod-media.loading::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, var(--skel) 30%, var(--skel-hi) 50%, var(--skel) 70%);
+  background-size: 200% 100%; animation: shimmer 1.2s linear infinite;
+}
+.prod-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s ease; }
+.prod-media img.loaded { opacity: 1; }
+.prod-card .cell-badge { top: 8px; right: 8px; }
+/* Instagram tarzi yumusak beyaz etiket (mavi pill degil) */
+.cat-badge {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  background: rgba(255, 255, 255, .96); color: #262626;
+  font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .12);
+}
+.prod-text { padding: 8px 2px 0; }
+.prod-name {
+  font-size: 14px; font-weight: 600; line-height: 1.3;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+}
+.prod-price { margin-top: 3px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+
+/* price (shared by card / row / detail) */
+.price { font-size: 14px; font-weight: 600; color: var(--text); }
+.price-old { font-size: 12px; color: var(--text-3); text-decoration: line-through; }
+.price-text { font-size: 13px; font-weight: 600; color: var(--text-2); }
+
+/* ---------- 5d) Catalog: menu / service list ---------- */
+.catalog-items { margin-bottom: 8px; }
+.list { margin-top: 8px; display: flex; flex-direction: column; }
+.list-row {
+  display: flex; align-items: flex-start; gap: 12px; width: 100%;
+  padding: 14px 2px; border: none; border-bottom: 1px solid var(--border-2);
+  background: none; cursor: pointer; color: var(--text); text-align: left;
+}
+.list-row:last-child { border-bottom: none; }
+@media (hover: hover) { .list-row:hover { background: var(--surface-2); } }
+.row-thumb { position: relative; flex: 0 0 auto; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; background: var(--skel); }
+.row-thumb.loading::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, var(--skel) 30%, var(--skel-hi) 50%, var(--skel) 70%);
+  background-size: 200% 100%; animation: shimmer 1.2s linear infinite;
+}
+.row-thumb img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s ease; }
+.row-thumb img.loaded { opacity: 1; }
+.row-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.row-name { font-size: 14px; font-weight: 600; }
+.row-meta { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-2); }
+.row-meta svg { width: 13px; height: 13px; }
+.row-desc {
+  font-size: 13px; color: var(--text-2); line-height: 1.4;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+}
+.row-price { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding-left: 6px; }
+
+/* ---------- 5e) Catalog: item detail overlay ---------- */
+.detail-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, .85); z-index: 1000;
+  display: flex; align-items: center; justify-content: center; animation: fade .2s ease;
+}
+.detail-close { position: fixed; top: 12px; right: 14px; z-index: 1003; color: #fff; background: none; border: none; cursor: pointer; }
+.detail-close svg { width: 26px; height: 26px; }
+/* Masaustu: grid. `.detail-scroll` display:contents -> media+info dogrudan grid hucresine girer;
+   media solda tam yukseklik, info sag-ust (kayar), foot sag-alt (info kolonunda). */
+.detail {
+  display: grid; grid-template-columns: auto 360px; grid-template-rows: minmax(0, 1fr) auto;
+  background: var(--surface); overflow: hidden;
+  max-width: 95vw; height: min(86vh, 760px); border-radius: 6px; box-shadow: var(--shadow);
+}
+.detail-scroll { display: contents; }
+.detail-media { position: relative; grid-column: 1; grid-row: 1 / 3; height: 100%; aspect-ratio: 4 / 5; background: #000; }
+.detail-info { grid-column: 2; grid-row: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; border-left: 1px solid var(--border); }
+.detail-foot { grid-column: 2; grid-row: 2; }
+.detail-foot[hidden] { display: none; }
+.detail-info .lb-head { flex: 0 0 auto; }
+.detail-body { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 10px; padding: 18px 20px; }
+.detail-name { font-size: 20px; font-weight: 600; line-height: 1.25; }
+.detail-meta { display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); font-size: 13px; }
+.detail-meta svg { width: 15px; height: 15px; }
+.detail-price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.detail-price .price { font-size: 20px; }
+.detail-price .price-old { font-size: 14px; }
+.detail-price .price-text { font-size: 15px; }
+.detail-desc { margin: 4px 0 0; font-size: 14px; line-height: 1.55; color: var(--text); white-space: pre-line; }
+.detail-variants { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.variant-label { display: block; font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+.variant-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.variant-chip { font-size: 13px; padding: 6px 13px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: transparent; }
+button.variant-chip { cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
+button.variant-chip:hover { border-color: var(--text-2); }
+.variant-chip.active { border-color: var(--text); background: var(--text); color: var(--bg); }
+
+@media (max-width: 1023px) {
+  .detail-overlay { background: var(--bg); display: block; }   /* ortalama yok; .detail tam doldurur */
+  /* Mobilde X'i SOL uste al -> galeri sayaci (sag ust) ile cakismaz; koyu daire
+     arkaplan ile her gorselin uzerinde gorunur kalir. */
+  .detail-close {
+    top: 12px; left: 12px; right: auto;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(0, 0, 0, .5); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .detail-close svg { width: 20px; height: 20px; }
+  /* FLEX kolon: .detail-scroll (gorsel TAM 4:5 + aciklama) BIRLIKTE kayar; foot kaydirma
+     DISINDA, flex ile dipte sabit -> gorsel kirpilmaz, foot icerige binmez, bosluk/sizma yok. */
+  .detail {
+    display: flex; flex-direction: column;
+    position: absolute; inset: 0; width: auto; max-width: none; height: auto;
+    border-radius: 0; box-shadow: none; overflow: hidden;
+  }
+  .detail-scroll { display: block; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .detail-media { width: 100%; height: auto; aspect-ratio: 4 / 5; }
+  .detail-info { display: block; overflow: visible; border-left: none; }
+  .detail-body { overflow: visible; }
+  .detail-foot { flex: 0 0 auto; }
+}
+
+/* ---------- 5f) Demo switcher (only when PROFILE_DEMOS present) ---------- */
+.demo-switch {
+  position: fixed; top: 10px; right: 10px; z-index: 60;
+  display: flex; align-items: center; gap: 4px; padding: 4px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow);
+}
+/* Bir overlay/sheet acikken (body.locked) gizle -> kapatma (X) butonuyla cakismaz */
+body.locked .demo-switch { display: none; }
+
+/* Tema (koyu/acik) gecis dugmesi — sol ust, sabit; overlay acikken gizli (mobil detay X'i de sol ust) */
+.theme-toggle {
+  position: fixed; top: 10px; left: 10px; z-index: 60;
+  width: 38px; height: 38px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  cursor: pointer; box-shadow: var(--shadow); transition: transform .12s ease, background .15s ease;
+}
+.theme-toggle svg { width: 18px; height: 18px; }
+.theme-toggle:active { transform: scale(.92); }
+body.locked .theme-toggle { display: none; }
+.demo-switch-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--text-3); padding: 0 4px; }
+.demo-opt { font-size: 12px; font-weight: 600; padding: 5px 9px; border: none; border-radius: 7px; background: none; color: var(--text-2); cursor: pointer; white-space: nowrap; }
+.demo-opt:hover { background: var(--surface-2); }
+.demo-opt.active { background: var(--text); color: var(--bg); }
+
+/* ---------- 5g) Add-to-cart foot + cart bar + cart sheet ---------- */
+.detail-foot {
+  flex: 0 0 auto; position: sticky; bottom: 0; z-index: 1;
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--surface); border-top: 1px solid var(--border);
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, .06);   /* yukarida kayan icerik hissi */
+  padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+.detail-foot .btn { width: 100%; height: 46px; justify-content: center; }
+.detail-foot .btn svg { width: 18px; height: 18px; }
+.detail-add.added { background: var(--text); color: var(--bg); }   /* "eklendi": dark mode'da da kontrast (beyaz-ustune-beyaz olmasin) */
+
+/* Detay alt barindaki sepet ozeti (alt sepet-cubugu ile ayni koyu dil) */
+.detail-cart {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  background: var(--text); color: var(--bg); border: none; cursor: pointer;
+  border-radius: 10px; padding: 10px 14px; font-size: 13px;
+}
+.detail-cart[hidden] { display: none; }
+.detail-cart .cart-bar-ic { display: inline-flex; }
+.detail-cart .cart-bar-ic svg { width: 18px; height: 18px; display: block; }
+.detail-cart .dc-count { font-weight: 600; }
+.detail-cart .dc-total { margin-left: auto; font-weight: 700; }
+.detail-cart .chev svg { width: 16px; height: 16px; transform: rotate(180deg); }
+
+/* Alt sepet cubugu: tam genislik koyu bar, icerik ortalanmis (IG'nin koyu UI hissi) */
+.cart-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+  border: none; margin: 0; cursor: pointer;
+  background: var(--text); color: var(--bg);
+  padding: 13px 18px; padding-bottom: max(13px, env(safe-area-inset-bottom));
+}
+body.locked .cart-bar { display: none; }            /* overlay/sheet acikken gizle */
+body.has-cart-bar .container { padding-bottom: 96px; } /* bar son icerigi ortmesin */
+.cart-bar-inner { max-width: var(--maxw); margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.cart-bar-ic { display: inline-flex; }
+.cart-bar-ic svg { width: 20px; height: 20px; display: block; }
+.cart-bar-label { font-size: 14px; font-weight: 600; }
+.cart-bar-total { margin-left: auto; font-size: 14px; font-weight: 700; }
+.cart-bar .chev svg { width: 18px; height: 18px; transform: rotate(180deg); }
+
+/* Sepet sheet (.sheet desenini kullanir) */
+.cart-sheet .cart-list { display: flex; flex-direction: column; }
+.cart-line { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border-2); }
+.cart-thumb { flex: 0 0 auto; width: 52px; height: 52px; border-radius: 8px; overflow: hidden; background: var(--skel); }
+.cart-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cart-line-text { flex: 1 1 auto; min-width: 0; }
+.cart-line-name { font-size: 14px; font-weight: 600; }
+.cart-line-variant { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+.cart-line-price { font-size: 13px; font-weight: 600; margin-top: 2px; }
+.cart-qty { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; border: 1px solid var(--border); border-radius: 20px; padding: 2px; }
+.qty-btn { width: 26px; height: 26px; border: none; background: none; border-radius: 50%; cursor: pointer; color: var(--text); display: inline-flex; align-items: center; justify-content: center; }
+.qty-btn svg { width: 14px; height: 14px; }
+.qty-btn:hover { background: var(--btn); }
+.qty-n { min-width: 18px; text-align: center; font-size: 14px; font-weight: 600; }
+.cart-remove { flex: 0 0 auto; background: none; border: none; cursor: pointer; color: var(--text-3); padding: 4px; }
+.cart-remove svg { width: 18px; height: 18px; }
+.cart-foot {
+  position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border);
+  padding: 14px 16px; padding-bottom: max(14px, env(safe-area-inset-bottom));
+}
+.cart-total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; font-size: 14px; }
+.cart-total { font-weight: 700; }
+.cart-total-note { font-weight: 400; font-size: 11px; color: var(--text-2); }
+.cart-send { width: 100%; height: 46px; justify-content: center; }
+.cart-send svg { width: 18px; height: 18px; }
+
+/* sheet head right group + clear-cart (2-step confirm) */
+.sheet-head-right { display: flex; align-items: center; gap: 10px; }
+.cart-clear { background: none; border: none; cursor: pointer; color: var(--text-2); font-size: 13px; font-weight: 600; padding: 4px; }
+.cart-clear:hover { color: var(--text); }
+.cart-clear.arm { color: #ed4956; }   /* IG kirmizisi: yikici onay */
+
+/* ---------- 5h) Reviews: rating chip (header) + reviews sheet ---------- */
+.rating-chip {
+  display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
+  background: var(--btn); border: none; border-radius: 16px; padding: 6px 12px;
+  cursor: pointer; color: var(--text); font-size: 13px; transition: background .15s;
+}
+.rating-chip:hover { background: var(--btn-hover); }
+.rating-chip svg { width: 15px; height: 15px; color: var(--star); }
+.rating-val { font-weight: 700; }
+.rating-count { color: var(--text-2); }
+
+/* "Şu an Açık / Kapalı" canli durum rozeti (saat rozeti -> iletisim sheet'i) */
+.open-status {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
+  background: none; border: none; cursor: pointer; padding: 4px 2px; font-size: 13px;
+}
+.open-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); flex: 0 0 auto; }
+.open-status .os-text { font-weight: 600; color: var(--text-2); }
+.open-status .os-detail { color: var(--text-2); }
+.open-status.is-open .dot { background: #2ea043; }
+.open-status.is-open .os-text { color: #2ea043; }
+
+.stars { position: relative; display: inline-block; line-height: 0; white-space: nowrap; }
+.stars-bg, .stars-fg { display: inline-flex; }
+.stars-bg { color: var(--border); }            /* bos: gri zemin */
+.stars-fg { position: absolute; top: 0; left: 0; overflow: hidden; white-space: nowrap; color: var(--star); }  /* dolu: altin, yuzdeyle kirpilir */
+/* flex:0 0 auto SART: yoksa altin (fg) katmandaki yildizlar %genislikte kirpilmak yerine
+   kuculur (squish) -> 5 olmayan puanlar "patlar". 0 0 auto ile sabit kalip overflow ile kirpilir. */
+.stars svg { width: 16px; height: 16px; display: block; flex: 0 0 auto; }
+.stars.sm svg { width: 13px; height: 13px; }
+
+.rv-summary { display: flex; align-items: center; gap: 22px; padding: 20px 16px; border-bottom: 1px solid var(--border-2); }
+.rv-score-block { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 0 0 auto; }
+.rv-score { font-size: 44px; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.rv-count { font-size: 12px; color: var(--text-2); }
+.rv-bars { flex: 1 1 auto; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.rv-bar { display: flex; align-items: center; gap: 8px; }
+.rv-bar-n { font-size: 11px; color: var(--text-2); width: 8px; text-align: right; flex: 0 0 auto; }
+.rv-bar-track { flex: 1 1 auto; height: 6px; border-radius: 3px; background: var(--btn); overflow: hidden; }
+.rv-bar-fill { display: block; height: 100%; background: var(--text); border-radius: 3px; transition: width .4s ease; }
+
+.rv-list { display: flex; flex-direction: column; }
+.rv-item { display: flex; gap: 12px; padding: 15px 16px; border-bottom: 1px solid var(--border-2); }
+.rv-item:last-child { border-bottom: none; }
+.rv-avatar {
+  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; color: #fff;
+  font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;
+}
+.rv-body { flex: 1 1 auto; min-width: 0; }
+.rv-author { font-size: 14px; font-weight: 600; }
+.rv-meta { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+.rv-when { font-size: 12px; color: var(--text-3); }
+.rv-text { margin: 7px 0 0; font-size: 14px; line-height: 1.5; color: var(--text); }
+.rv-skel-score { width: 56px; height: 44px; border-radius: 8px; flex: 0 0 auto; }
+
+/* ---------- 5i) Skeleton helpers (catalog + reviews first-load) ---------- */
+.skel-box, .skel-line {
+  background: linear-gradient(100deg, var(--skel) 30%, var(--skel-hi) 50%, var(--skel) 70%);
+  background-size: 200% 100%; animation: shimmer 1.2s linear infinite;
+}
+.skel-line { display: block; height: 11px; border-radius: 4px; margin: 7px 0; }
+.skel-line.short { width: 55%; }
+
+/* ---------- 5j) FAQ (S.S.S.) accordion ---------- */
+.faq[hidden] { display: none; }
+.faq-list { display: flex; flex-direction: column; margin-top: 6px; }
+.faq-item { border-bottom: 1px solid var(--border-2); }
+.faq-q {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  background: none; border: none; cursor: pointer; color: var(--text); text-align: left;
+  padding: 16px 2px; font-size: 15px; font-weight: 500; line-height: 1.35;
+}
+@media (hover: hover) { .faq-q:hover { color: var(--text-2); } }
+.faq-q svg { width: 20px; height: 20px; flex: 0 0 auto; color: var(--text-3); transition: transform .25s ease; }
+.faq-item.open .faq-q { font-weight: 600; }
+.faq-item.open .faq-q svg { transform: rotate(180deg); color: var(--text); }
+/* Akordeon: varsayilan KAPALI (max-height:0 + overflow:hidden -> padding dahil tam coker) */
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+.faq-item.open .faq-a { max-height: 500px; }
+.faq-a p { margin: 0; padding: 2px 2px 18px; font-size: 14px; line-height: 1.6; color: var(--text-2); }
+
+/* ---------- Polish: micro-interactions ---------- */
+@keyframes cartUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes addedPulse { 0% { transform: scale(1); } 45% { transform: scale(1.035); } 100% { transform: scale(1); } }
+
+/* dokunus/tiklama geri bildirimi */
+.btn, .chip, .rating-chip, .open-status, .prod-card, .list-row, .qty-btn, button.variant-chip, .faq-q {
+  transition: transform .12s ease, background .15s ease, color .15s ease, border-color .15s ease;
+}
+.btn:active, .chip:active, .rating-chip:active, .open-status:active, .qty-btn:active, button.variant-chip:active { transform: scale(.96); }
+.prod-card:active, .list-row:active { transform: scale(.985); }
+
+/* sepet cubugu alttan kayarak gelsin; "eklendi" hafif pulse */
+.cart-bar { animation: cartUp .3s cubic-bezier(.22, 1, .36, 1); }
+.detail-add.added { animation: addedPulse .32s ease; }
+
+/* skeleton -> icerik ve bolum gosterimi yumusak fade */
+.catalog-items .prod-grid, .catalog-items .list, .rv-list { animation: fade .3s ease; }
+#catalog:not([hidden]), #grid:not([hidden]), #faq:not([hidden]) { animation: fade .24s ease; }
+
+/* ---------- Grid (Instagram-style posts) ---------- */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 14px; }
+/* .grid{display:grid} UA'nin [hidden]{display:none}'ini ezer -> sekme degisince
+   gizlemek icin acik kural sart (yoksa gonderi kutulari katalogda kalir). */
+.grid[hidden], #sentinel[hidden] { display: none; }
+.cell {
+  position: relative; aspect-ratio: 4 / 5; overflow: hidden; cursor: pointer;
+  border: none; padding: 0; background: var(--skel);
+}
+.cell.skeleton {
+  background: linear-gradient(100deg, var(--skel) 30%, var(--skel-hi) 50%, var(--skel) 70%);
+  background-size: 200% 100%; animation: shimmer 1.2s linear infinite;
+}
+.cell.loading::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(100deg, var(--skel) 30%, var(--skel-hi) 50%, var(--skel) 70%);
+  background-size: 200% 100%; animation: shimmer 1.2s linear infinite;
+}
+.cell img {
+  position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity .4s ease;
+}
+.cell img.loaded { opacity: 1; }
+.cell.media-error { background: var(--surface-2); }
+.cell-overlay {
+  position: absolute; inset: 0; z-index: 2; background: rgba(0, 0, 0, .12);
+  opacity: 0; transition: opacity .2s;
+}
+@media (hover: hover) { .cell:hover .cell-overlay { opacity: 1; } }
+.cell-badge {
+  position: absolute; top: 7px; right: 7px; z-index: 2; color: #fff; pointer-events: none;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .5));
+}
+.cell-badge svg { width: 20px; height: 20px; }
+
+#sentinel { height: 1px; width: 100%; }
+
+/* ---------- 6a) Post view — desktop modal (>=1024px) ---------- */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, .85); z-index: 1000;
+  display: flex; align-items: center; justify-content: center; animation: fade .2s ease;
+}
+.overlay-close { position: fixed; top: 12px; right: 14px; z-index: 1003; color: #fff; background: none; border: none; cursor: pointer; }
+.overlay-close svg { width: 26px; height: 26px; }
+.overlay-nav {
+  position: fixed; top: 50%; transform: translateY(-50%); z-index: 1002;
+  width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, .92); color: #1a1a1a;
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, .25);   /* acik gorsel/zemin uzerinde de gorunur */
+}
+.overlay-nav:active { transform: translateY(-50%) scale(.93); }
+.overlay-nav svg { width: 20px; height: 20px; }
+.overlay-nav.prev { left: 16px; }
+.overlay-nav.next { right: 16px; }
+.overlay-nav[hidden] { display: none; }
+
+.lightbox {
+  display: flex; flex-direction: row; background: var(--surface); overflow: hidden;
+  width: auto; max-width: 95vw; height: min(86vh, 760px); border-radius: 6px; box-shadow: var(--shadow);
+}
+.lightbox-media { position: relative; flex: 0 0 auto; height: 100%; aspect-ratio: 4 / 5; background: #000; }
+.lightbox-info { flex: 0 0 360px; display: flex; flex-direction: column; overflow: hidden; border-left: 1px solid var(--border); }
+
+.lb-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); flex: 0 0 auto; }
+.lb-head .mini-logo { display: block; width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: var(--skel); }
+.lb-head-text { flex: 1 1 auto; min-width: 0; }
+.lb-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+.lb-name .verified svg { width: 14px; height: 14px; }
+.lb-loc { font-size: 12px; color: var(--text); display: flex; align-items: center; gap: 4px; }
+.lb-loc svg { width: 12px; height: 12px; }
+.lb-body { flex: 1 1 auto; overflow-y: auto; padding: 14px 16px; }
+.lb-caption { font-size: 14px; line-height: 1.5; white-space: pre-line; }
+.lb-author { font-weight: 600; margin-right: 6px; }
+.lb-date { margin-top: 14px; color: var(--text-3); font-size: 11px; letter-spacing: .3px; text-transform: uppercase; }
+
+/* ---------- 6b) Mobile / tablet feed (<1024px) ---------- */
+.feed-overlay { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100dvh; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; }
+.feed-top {
+  position: sticky; top: 0; z-index: 2; display: grid; grid-template-columns: 52px 1fr 52px;
+  align-items: center; height: 50px; background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.feed-back { background: none; border: none; cursor: pointer; color: var(--text); display: inline-flex; align-items: center; justify-content: center; height: 50px; }
+.feed-back svg { width: 26px; height: 26px; }
+.feed-title { text-align: center; line-height: 1.2; }
+.feed-title-main { font-size: 16px; font-weight: 600; }
+.feed-title-sub { font-size: 13px; color: var(--text-2); }
+.feed-scroll { position: relative; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
+/* IG'de postlar arasi gri cizgi yok; ayrim bosluk + sonraki gonderinin basligi ile belli olur */
+.feed-card { padding-bottom: 6px; }
+.fc-head { display: flex; align-items: center; gap: 10px; padding: 9px 14px; }
+.fc-head .mini-logo { display: block; width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: var(--skel); }
+.fc-head-text { flex: 1 1 auto; min-width: 0; }
+.fc-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 4px; line-height: 1.3; }
+.fc-name .verified svg { width: 13px; height: 13px; }
+.fc-loc { font-size: 13px; color: var(--text); line-height: 1.2; }
+.avatar-ring {
+  display: inline-flex; flex: 0 0 auto; padding: 2px; border-radius: 50%;
+  background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+}
+.avatar-ring .mini-logo { border: 2px solid var(--bg); }
+.fc-media { position: relative; width: 100%; aspect-ratio: 4 / 5; background: #000; }
+/* Lazy akista, kartin medyasi yuklenene kadar skeleton shimmer */
+.feed-card.fc-loading .fc-media {
+  background: linear-gradient(100deg, var(--skel) 30%, var(--skel-hi) 50%, var(--skel) 70%);
+  background-size: 200% 100%; animation: shimmer 1.2s linear infinite;
+}
+.fc-body { padding: 9px 12px 14px; }
+.fc-caption { font-size: 14px; line-height: 1.5; white-space: pre-line; }
+.fc-caption .fc-author { font-weight: 600; margin-right: 6px; }
+.fc-date { margin-top: 7px; color: var(--text-3); font-size: 12px; }
+
+/* ---------- 6c) Carousel (shared by modal + feed) ---------- */
+.media-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
+.carousel-track { display: flex; height: 100%; transition: transform .3s ease; }
+.slide { flex: 0 0 100%; height: 100%; }
+.slide.loading {   /* modal/karusel medyasi yuklenene kadar skeleton (bindImage 'loading'i kaldirir) */
+  background: linear-gradient(100deg, var(--skel) 30%, var(--skel-hi) 50%, var(--skel) 70%);
+  background-size: 200% 100%; animation: shimmer 1.2s linear infinite;
+}
+.slide img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s ease; }
+.slide img.loaded { opacity: 1; }
+.carousel-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 26px; height: 26px;
+  border-radius: 50%; background: rgba(255, 255, 255, .85); color: #1a1a1a; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; z-index: 3;
+}
+.carousel-arrow svg { width: 16px; height: 16px; }
+.carousel-arrow.prev { left: 8px; } .carousel-arrow.next { right: 8px; }
+.carousel-arrow[hidden] { display: none; }
+.carousel-counter {
+  position: absolute; top: 10px; right: 10px; z-index: 3; background: rgba(0, 0, 0, .6);
+  color: #fff; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 12px;
+}
+.carousel-dots { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 4px; z-index: 3; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .45); }
+.dot.active { background: #fff; }
+.media-badge { position: absolute; top: 10px; left: 10px; z-index: 3; color: #fff; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .5)); }
+.media-badge svg { width: 22px; height: 22px; }
+
+/* Video posts (autoplay, muted, loop) */
+.post-video { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
+.mute-btn {
+  position: absolute; bottom: 10px; right: 10px; z-index: 3; width: 30px; height: 30px;
+  border-radius: 50%; background: rgba(0, 0, 0, .55); color: #fff; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.mute-btn svg { width: 16px; height: 16px; }
+
+/* On touch layout the gallery is swiped (no arrows); dots + counter remain */
+@media (max-width: 1023px) { .carousel-arrow { display: none; } }
+
+/* ---------- 7) Bottom sheet + footer ---------- */
+.sheet-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, .5); z-index: 1100;
+  display: flex; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity .28s ease;
+}
+.sheet-overlay.open { opacity: 1; }
+.sheet {
+  width: 100%; max-width: 460px; background: var(--surface); border-radius: 14px 14px 0 0;
+  max-height: 85vh; overflow-y: auto; overscroll-behavior: contain; padding-bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateY(100%); transition: transform .32s cubic-bezier(.22, 1, .36, 1);
+}
+.sheet-overlay.open .sheet { transform: translateY(0); }
+.sheet-handle { width: 38px; height: 4px; border-radius: 3px; background: var(--border); margin: 8px auto 2px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px 12px; border-bottom: 1px solid var(--border); }
+.sheet-title { font-weight: 600; font-size: 16px; }
+.sheet-close { background: none; border: none; cursor: pointer; color: var(--text); }
+.sheet-close svg { width: 22px; height: 22px; }
+
+.info-list { display: flex; flex-direction: column; }
+.info-row { display: flex; align-items: flex-start; gap: 14px; padding: 15px 16px; border-bottom: 1px solid var(--border-2); color: var(--text); }
+.info-row:last-child { border-bottom: none; }
+a.info-row:hover { background: var(--surface-2); }
+.info-icon { flex: 0 0 auto; color: var(--text); margin-top: 1px; }
+.info-icon svg { width: 22px; height: 22px; }
+.info-text { display: flex; flex-direction: column; min-width: 0; }
+.info-text .label { font-size: 12px; color: var(--text-2); }
+.info-text .value { font-size: 14px; word-break: break-word; }
+
+/* Haftalik calisma saatleri tablosu (iletisim sheet'i; bugun vurgulu) */
+.hours-table { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.hours-day { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; }
+.hours-day .hd-name { color: var(--text-2); }
+.hours-day .hd-val { color: var(--text); }
+.hours-day.today { font-weight: 600; }
+.hours-day.today .hd-name { color: var(--text); }
+
+.site-footer { margin-top: 32px; text-align: center; color: var(--text-3); font-size: 12px; }
+
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ---------- Responsive (small screens) ---------- */
+@media (max-width: 767px) {
+  /* Izgara kenardan kenara (IG gibi): sayfa yatay padding'i 0, ic bolumler kendi padding'i */
+  .container { padding: 14px 0 48px; }
+  .profile-header { padding-left: 16px; padding-right: 16px; }
+  .contact { padding-left: 16px; padding-right: 16px; }
+  .logo { width: 90px; height: 90px; }
+  .business-name { font-size: 20px; }
+  .grid { gap: 2px; }
+  /* Katalog/FAQ (gonderi izgarasinin aksine) kendi yatay padding'ini alir */
+  .catalog, .faq { padding: 0 16px; }
+  .prod-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .demo-switch-label { display: none; }
+}
